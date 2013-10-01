@@ -8,15 +8,15 @@ include_directories(
 
 set(geophone-src
     native/src/analyze.c
-    native/src/geophone_module.c
+    native/src/geophone.c
 )
 
-set(libgeophone_module
-    GeophoneModule
+set(libgeophone
+    Geophone
 )
 
-add_library(${libgeophone_module} SHARED ${geophone-src})
+add_library(${libgeophone} SHARED ${geophone-src})
 
-set_target_properties(${libgeophone_module} PROPERTIES
+set_target_properties(${libgeophone} PROPERTIES
         COMPILE_FLAGS "-Wall -fPIC"
 )

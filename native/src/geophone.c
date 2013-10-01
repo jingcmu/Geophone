@@ -1,6 +1,8 @@
 #include <python2.7/Python.h>
 #include "analyze.h"
 
+static const char *GEOPHONE_NAME = "Geophone";
+
 static PyObject * wrapper(PyObject *self, PyObject *args) {
     const int * array;
     int n;
@@ -16,8 +18,8 @@ static PyMethodDef sGeophoneMethods[] = {
     { NULL, NULL, 0, NULL }
 };
 
-PyMODINIT_FUNC initGeophoneModule() {
-    PyObject *m = Py_InitModule("GeophoneModule", sGeophoneMethods);
+PyMODINIT_FUNC initGeophone() {
+    PyObject *m = Py_InitModule(GEOPHONE_NAME, sGeophoneMethods);
     if (m == NULL) {
         return;
     }
