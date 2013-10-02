@@ -1,6 +1,7 @@
 import threading
 
-# import serialport
+import serialport
+import time
 
 
 class SerialThread(threading.Thread):
@@ -81,18 +82,28 @@ class SerialThread(threading.Thread):
     def lockRelease(self):
         self.lock.release()
 
-# def openSerial(port, rate):
-#     """
-#     open serial with port and rate and return serial
-#     """
-#     return serialport.SerialPort(port, rate)
+def openSerial(port, rate):
+    """
+    open serial with port and rate and return serial
+    """
+    return serialport.SerialPort(port, rate)
 
-# if __name__ == '__main__':
-#     # Serial port
-#     SERIAL_PORT = '/dev/ttyACM0'
-#     # Serial baudrate
-#     SERIAL_RATE = 115200
-#     ser = openSerial(SERIAL_PORT, SERIAL_RATE)
-#     t = SerialThread([], ser)
-#     t.start()
+if __name__ == '__main__':
+    # Serial port
+    SERIAL_PORT = '/dev/ttyACM1'
+    # Serial baudrate
+    SERIAL_RATE = 115200
+    dataList = []
+    ser = openSerial(SERIAL_PORT, SERIAL_RATE)
+    t = SerialThread(dataList, ser)
+    t.start()
+    time.sleep(1)
+    t.lockAcquire()
+    time.sleep(2)
+    t.lockRelease()
+    time.sleep(1)
+    t.stop()
+
+    for data in dataList:
+        print data
 
