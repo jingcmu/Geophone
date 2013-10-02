@@ -2,7 +2,6 @@ import Tkinter
 import random
 
 import serialport
-import threading
 import serialthread
 
 STEPNUM = 0
@@ -47,7 +46,6 @@ def startThread(ser):
     """
     start a thread to read data from serial
     """
-    # t = threading.Thread(group=None, target=read, name="ReadingDataThread")
     global dataList
     t = serialthread.SerialThread(dataList, ser)
     if t:
@@ -70,3 +68,4 @@ if __name__ == '__main__':
     setText()
     updateStepNumber(0, 100)
     window.mainloop()
+
