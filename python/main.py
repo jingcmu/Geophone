@@ -3,34 +3,76 @@ import random
 
 import serialport
 import serialthread
+import time
+import copy
 
 STEPNUM = 0
 
 # Serial port
-SERIAL_PORT = '/dev/ttyACM0'
+SERIAL_PORT = '/dev/tty.usbmodem411'
 # Serial baudrate
 SERIAL_RATE = 115200
 
 # Global list to store data from serial
 dataList = []
+data_processing = []
+t = None
 
-def detectedStep(a, b):
-    randomNum = random.randint(a, b)
-    if randomNum > 80:
-        return True
+def detectedStep():
+    global t
+    global dataList
+    global data_processing
+    temp_data = []
+    
+    #t.lockAcquire()
+    print 'len of datalist = ', len(dataList)
+    
+    if len(dataList) > 100:
+        temp_data = copy.copy(dataList)
+        dataList = []
+        data_processing.extend(temp_data)
+        #print data_processing
+        #the window size for processing is 200
+        #each time update 100 data
+        if len(data_processing) > 200:
+            data_processing = data_processing[100:]
+        #t.lockRelease()
+        if len(data_processing):
+            max_data = max(data_processing)
+        else:
+            return False
+        
+        index_max = data_processing.index(max_data)
+        #print 'index_max = ', index_max
+        power = 0
+    
+        if len(data_processing) - index_max > 25 and index_max > 25:
+            power = sum(data_processing[index_max-25:index_max+25])
+            #print 'power = ', power
+        else:
+            return False
+     
+        if power > 500:
+            return True
+        else:
+            return False
     else:
         return False
-
-def stepNum(a, b):
+    return False
+    
+def stepNum():
     global STEPNUM
-    if detectedStep(a, b):
+    global temp_data
+    #t.lockAcquire()
+    if detectedStep():
         STEPNUM = STEPNUM + 1
     return STEPNUM
+    #t.lockRelease()
      
-def updateStepNumber(a, b):
+def updateStepNumber():
     text.delete(1.0, 'end')
-    text.insert('end', stepNum(a, b), 'BLUE')
-    text.after(10, updateStepNumber, a, b)
+    text.insert('end', stepNum(), 'BLUE')
+    text.after(10, updateStepNumber)
     
 def setText():
     text.tag_config('RED',foreground = 'red',font=('Tempus Sans ITC',400))
@@ -47,6 +89,7 @@ def startThread(ser):
     start a thread to read data from serial
     """
     global dataList
+    global t
     t = serialthread.SerialThread(dataList, ser)
     if t:
         t.start()
@@ -55,7 +98,7 @@ if __name__ == '__main__':
 
     ser = openSerial(SERIAL_PORT, SERIAL_RATE)
     startThread(ser)
-
+'''
     stepnum = 0
     #GUI main window
     window = Tkinter.Tk()
@@ -66,6 +109,7 @@ if __name__ == '__main__':
     #pack text widget
     text.pack(expand=1, fill='both')
     setText()
-    updateStepNumber(0, 100)
+    updateStepNumber()
     window.mainloop()
 
+'''
