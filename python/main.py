@@ -9,7 +9,7 @@ import copy
 STEPNUM = 0
 
 # Serial port
-SERIAL_PORT = '/dev/tty.usbmodem411'
+SERIAL_PORT = '/dev/tty.usbmodem11231'
 # Serial baudrate
 SERIAL_RATE = 115200
 

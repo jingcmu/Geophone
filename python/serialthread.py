@@ -1,77 +1,63 @@
+#encoding:utf-8
 import threading
-
 import serialport
 import time
-
+import FFT
 
 class SerialThread(threading.Thread):
     stepNum = 0
-    BUFFSIZE = 400
-    WINDOWSIZE = BUFFSIZE/2
-    HALFWINOW = WINDOWSIZE/2
-    DENSITY = 6
-    THRESHDATA = 10
-    NUM = 20
+    #缓存256ms数据
+    BUFFSIZE = 256                
+    WINDOWSIZE = BUFFSIZE/2       #对128ms数据进行fft，得到fft能量
     
     #power
-    POWERTHRESHOLD = 16000        #strength is normally less than 5
-    #sum
-    #POWERTHRESHOLD = 4*200        #strength is normally less than 5
-
+    POWERTHRESHOLD = 16000        
     
-    def __init__(self, data, serial):
+    def __init__(self, dataList, serial):
         super(SerialThread, self).__init__()
-        self.data = data
+        self.dataList = dataList
         self.serial = serial
         self.isRunning = False
         self.lock = threading.Lock()
-
+        self.powerlist = []
+    
+    #该线程的主函数
     def run(self):
         self.isRunning = True
         while self.isRunning:
             self.lockAcquire()
             data = self.serial.readData()
+            #如果data太小（小于20）或者太大（大于1023），通常是读数据错误导致的
             if data < 20 or data > 1023:
                 data = 512
             data = abs(data - 512)
             #print data,
-            #use power to decide:
-            if data < self.THRESHDATA:
-                data = 0
-            #self.data.append(data*data)
-            self.data.append(data*data)
-            
-            #windon size is 200
-            if len(self.data) > self.BUFFSIZE:
+            self.dataList.append(data)  #数据存入datalist
+            #如果datalist的长度大于BUFFSIZE（256ms数据），则对前128ms的数据进行一次fft，并清空前128ms数据
+            if len(self.dataList) > self.BUFFSIZE:
                 self.detectStep()
             self.lockRelease()
     
+    #利用fft能量进行脚步检测
+    #算法：
+    #    0. 缓存3个128ms数据的fft能量，设为fft_a,fft_b,fft_c，如果满足下面条件，则判断为一个脚步
+    # 条件1. fft_b-fft_a > threshold && fft_b>fft_c > threshold
+    # 条件2. ...
     def detectStep(self):
-        max_data = max(self.data)
-        index_max = self.data.index(max_data)
-        power = 0
-        density = 0
-        
-        if len(self.data) - index_max > self.HALFWINOW and index_max > self.HALFWINOW:
-            power = sum(self.data[index_max - self.HALFWINOW : index_max + self.HALFWINOW])
-            
-            for d in self.data:
-                if d > self.THRESHDATA:
-                    density = density + 1
-            
-            #if density > self.NUM:
-            if power > self.POWERTHRESHOLD:
+        power = FFT.getFFTPower(self.dataList)
+        self.powerlist.append(power)
+        if len(self.powerlist) == 3:
+            #判断是否满足fft_b-fft_a > threshold && fft_b>fft_c > threshold
+            if (self.powerlist[1] - self.powerlist[0]>self.POWERTHRESHOLD\
+                and self.powerlist[1] - self.powerlist[2]>self.POWERTHRESHOLD):
                 self.stepNum = self.stepNum + 1
                 print 'Step ', self.stepNum
-                print 'Power = ', power
-                print self.data[index_max - self.HALFWINOW : index_max + self.HALFWINOW]
-  
-            self.data[index_max-self.HALFWINOW:index_max+self.HALFWINOW] = [0]*self.WINDOWSIZE
-
-        #clear first half data
-        self.data = self.data[self.WINDOWSIZE:]
+            #清掉第一个power
+            print self.powerlist
+            self.powerlist = self.powerlist[1:]
         
-        
+        #清空前128ms数据
+        self.dataList = self.dataList[self.WINDOWSIZE:]
 
     def stop(self):
         self.isRunning = False
@@ -87,23 +73,3 @@ def openSerial(port, rate):
     open serial with port and rate and return serial
     """
     return serialport.SerialPort(port, rate)
-
-if __name__ == '__main__':
-    # Serial port
-    SERIAL_PORT = '/dev/ttyACM1'
-    # Serial baudrate
-    SERIAL_RATE = 115200
-    dataList = []
-    ser = openSerial(SERIAL_PORT, SERIAL_RATE)
-    t = SerialThread(dataList, ser)
-    t.start()
-    time.sleep(1)
-    t.lockAcquire()
-    time.sleep(2)
-    t.lockRelease()
-    time.sleep(1)
-    t.stop()
-
-    for data in dataList:
-        print data
-

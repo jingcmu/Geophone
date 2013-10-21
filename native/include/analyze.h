@@ -1,4 +1,13 @@
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 
-int analyze(const int * array);
+#define PI        M_PI    /* pi to machine precision, defined in math.h */
+#define TWOPI     (2.0*PI)
+#define FFTSIZE   128
+#define FFT_flag  1
+#define IFFT_flag 0
+
+int  getFFT(double data [], int nn , int isign );
+long getPower(double array[], int size);
+long getFFTPower(const int * args);
