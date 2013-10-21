@@ -68,16 +68,16 @@ def stepNum():
         STEPNUM = STEPNUM + 1
     return STEPNUM
     #t.lockRelease()
-     
-def updateStepNumber():
-    text.delete(1.0, 'end')
-    text.insert('end', stepNum(), 'BLUE')
-    text.after(10, updateStepNumber)
-    
-def setText():
-    text.tag_config('RED',foreground = 'red',font=('Tempus Sans ITC',400))
-    text.tag_config('BLUE',foreground = 'blue',font=('Tempus Sans ITC',400))
- 
+#      
+# def updateStepNumber():
+#     text.delete(1.0, 'end')
+#     text.insert('end', stepNum(), 'BLUE')
+#     text.after(10, updateStepNumber)
+#     
+# def setText():
+#     text.tag_config('RED',foreground = 'red',font=('Tempus Sans ITC',400))
+#     text.tag_config('BLUE',foreground = 'blue',font=('Tempus Sans ITC',400))
+#  
 def openSerial(port, rate):
     """
     open serial with port and rate and return serial

@@ -2,7 +2,7 @@
 import threading
 import serialport
 import time
-import FFT
+import FFT  # @UnresolvedImport
 
 class SerialThread(threading.Thread):
     stepNum = 0
@@ -41,7 +41,7 @@ class SerialThread(threading.Thread):
     #利用fft能量进行脚步检测
     #算法：
     #    0. 缓存3个128ms数据的fft能量，设为fft_a,fft_b,fft_c，如果满足下面条件，则判断为一个脚步
-    # 条件1. fft_b-fft_a > threshold && fft_b>fft_c > threshold
+    # 条件1. fft_b-fft_a > threshold && fft_b-fft_c > threshold
     # 条件2. ...
     def detectStep(self):
         power = FFT.getFFTPower(self.dataList)

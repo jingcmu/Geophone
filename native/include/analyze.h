@@ -4,7 +4,7 @@
 
 #define PI        M_PI    /* pi to machine precision, defined in math.h */
 #define TWOPI     (2.0*PI)
-#define FFTSIZE   128
+#define FFTSIZE   128      //fft窗口大小
 #define FFT_flag  1
 #define IFFT_flag 0
 
