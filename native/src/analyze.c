@@ -51,13 +51,14 @@ int getFFT(double data [], int nn , int isign )
     return 0;
 }
 
+//带通滤波器，from startFreq to endFreq
 void filter(double array[], int startFreq, int endFreq){
     int i;
     for(i=0; i<(int)FFTSIZE*startFreq/1000; i++){
-        array[i] = 0;
+        array[FFTSIZE-1-i] = array[i] = 0;
     }
-    for(i=(int)FFTSIZE*endFreq/1000; i<FFTSIZE; i++){
-        array[i] = 0;
+    for(i=(int)FFTSIZE*endFreq/1000; i<FFTSIZE/2; i++){
+        array[FFTSIZE-1-i] = array[i] = 0;
     }
     return;
 }
