@@ -51,6 +51,17 @@ int getFFT(double data [], int nn , int isign )
     return 0;
 }
 
+void filter(double array[], int startFreq, int endFreq){
+    int i;
+    for(i=0; i<(int)FFTSIZE*startFreq/1000; i++){
+        array[i] = 0;
+    }
+    for(i=(int)FFTSIZE*endFreq/1000; i<FFTSIZE; i++){
+        array[i] = 0;
+    }
+    return;
+}
+
 long getPower(double array[], int size){
     int i;
     long power = 0;
@@ -72,6 +83,7 @@ long getFFTPower(const int *args) {
         array[2*i+2] = (double)0;
     }
 	getFFT(array, FFTSIZE, FFT_flag);
+    filter(array, STARTFREQ, ENDFREQ);
     power = getPower(array, FFTSIZE);
     return power;
 }
