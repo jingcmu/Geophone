@@ -8,7 +8,8 @@
 #define STARTFREQ 100      //start freq of Filter
 #define ENDFREQ   200      //end freq of Filter
 #define FFT_flag  1
-#define IFFT_flag 0
+#define IFFT_flag -1
+#define FILTERVALUE 0
 
 int  getFFT(double data [], int nn , int isign );
 long getPower(double array[], int size);

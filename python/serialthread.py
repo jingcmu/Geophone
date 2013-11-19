@@ -51,9 +51,9 @@ class SerialThread(threading.Thread):
             if (self.powerlist[1] - self.powerlist[0]>self.POWERTHRESHOLD\
                 and self.powerlist[1] - self.powerlist[2]>self.POWERTHRESHOLD):
                 self.stepNum = self.stepNum + 1
-                print 'Step ', self.stepNum
+                #print 'Step ', self.stepNum
             #清掉第一个power
-            print self.powerlist
+            #print self.powerlist
             self.powerlist = self.powerlist[1:]
         
         #清空前128ms数据
