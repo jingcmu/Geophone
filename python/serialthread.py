@@ -1,17 +1,21 @@
 #encoding:utf-8
 import threading
 import serialport
-import time
+#import time
 import FFT  # @UnresolvedImport
 
 class SerialThread(threading.Thread):
     stepNum = 0
-    #缓存256ms数据
-    BUFFSIZE = 256                
-    WINDOWSIZE = BUFFSIZE/2       #对128ms数据进行fft，得到fft能量
     
+    WINDOWSIZE = 200           #对200ms数据进行fft，得到fft能量
+    #缓存256ms数据
+    BUFFSIZE = WINDOWSIZE * 2                
+
     #power
-    POWERTHRESHOLD = 16000        
+    POWERTHRESHOLD = 0  
+    POWERTHRESHOLD_TRAIN_INDEX = 0 
+    TRAINING_TIME = 200     
+    MULTIPLIOR = 1.4
     
     def __init__(self, dataList, serial):
         super(SerialThread, self).__init__()
@@ -21,6 +25,22 @@ class SerialThread(threading.Thread):
         self.lock = threading.Lock()
         self.powerlist = []
     
+    #训练振动能量的阈值
+    def powerTraining(self):
+        power = FFT.getFFTPower(self.dataList)
+        self.POWERTHRESHOLD = self.POWERTHRESHOLD + power
+        print power #self.POWERTHRESHOLD 
+        self.POWERTHRESHOLD_TRAIN_INDEX = self.POWERTHRESHOLD_TRAIN_INDEX + 1
+        if self.POWERTHRESHOLD_TRAIN_INDEX == self.TRAINING_TIME:
+            self.POWERTHRESHOLD = self.POWERTHRESHOLD/self.TRAINING_TIME
+            print "powerThreshold:\n"
+            print self.POWERTHRESHOLD
+            self.POWERTHRESHOLD = self.POWERTHRESHOLD*self.MULTIPLIOR
+            print "powerThreshold1:\n"
+            print self.POWERTHRESHOLD
+        #清空前128ms数据
+        self.dataList = self.dataList[self.WINDOWSIZE:]
+        
     #该线程的主函数
     def run(self):
         self.isRunning = True
@@ -30,12 +50,19 @@ class SerialThread(threading.Thread):
             #如果data太小（小于20）或者太大（大于1023），通常是读数据错误导致的
             if data < 20 or data > 1023:
                 data = 512
+                
             data = abs(data - 512)
             #print data,
             self.dataList.append(data)  #数据存入datalist
+            
             #如果datalist的长度大于BUFFSIZE（256ms数据），则对前128ms的数据进行一次fft，并清空前128ms数据
             if len(self.dataList) > self.BUFFSIZE:
-                self.detectStep()
+                if self.POWERTHRESHOLD_TRAIN_INDEX < self.TRAINING_TIME:
+                    self.powerTraining()
+                else:
+                    #print "powerThreshold2:", self.POWERTHRESHOLD
+                    self.detectStep()
+            
             self.lockRelease()
     
     #利用fft能量进行脚步检测
@@ -48,16 +75,17 @@ class SerialThread(threading.Thread):
         self.powerlist.append(power)
         if len(self.powerlist) == 3:
             #判断是否满足fft_b-fft_a > threshold && fft_b>fft_c > threshold
-            if (self.powerlist[1] - self.powerlist[0]>self.POWERTHRESHOLD\
-                and self.powerlist[1] - self.powerlist[2]>self.POWERTHRESHOLD):
+            if (self.powerlist[1] > self.powerlist[0]
+                and self.powerlist[1] > self.powerlist[2]
+                and self.powerlist[1] > self.POWERTHRESHOLD):
                 self.stepNum = self.stepNum + 1
-                #print 'Step ', self.stepNum
+                print 'Step index :', self.stepNum
+                print 'Power = ', self.powerlist[1] 
             #清掉第一个power
             #print self.powerlist
-            self.powerlist = self.powerlist[1:]
-        
-        #清空前128ms数据
-        self.dataList = self.dataList[self.WINDOWSIZE:]
+            self.powerlist = self.powerlist[1:]  
+        #清空前100ms数据
+        self.dataList = self.dataList[self.WINDOWSIZE/2:]
 
     def stop(self):
         self.isRunning = False

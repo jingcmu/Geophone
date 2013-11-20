@@ -6,6 +6,7 @@
  */
 
 #define DEBUG
+#undef  DEBUG
 int getFFT(double data [], int size , int isign )
 {
     int n, mmax, m, j, istep, i;
@@ -104,9 +105,9 @@ long getFFTPower(const int *args) {
 #endif
     for(i=0; i<FFTSIZE; i++){
         array[2*i+1] = (double)args[i];
-        printf("%f ", array[2*i+1]);
         array[2*i+2] = (double)0;
 #ifdef DEBUG
+        printf("%f ", array[2*i+1]);
         printf("%f ", array[2*i+2]);
 #endif
     }
