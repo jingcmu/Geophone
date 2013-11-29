@@ -14,7 +14,7 @@ class SerialThread(threading.Thread):
     #power
     POWERTHRESHOLD = 0  
     POWERTHRESHOLD_TRAIN_INDEX = 0 
-    TRAINING_TIME = 200     
+    TRAINING_TIME = 100     
     MULTIPLIOR = 1.4
     
     def __init__(self, dataList, serial):
