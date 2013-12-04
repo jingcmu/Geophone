@@ -1,4 +1,3 @@
-#include <time.h>
 
 char buffer[64] = { 0 };
 

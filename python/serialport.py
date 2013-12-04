@@ -21,7 +21,7 @@ class SerialPort(object):
         """
         data = 0
         try:
-            data = int(self.ser.readline())
+            data = self.ser.readline()
         except ValueError:
             data = -1
         return data
