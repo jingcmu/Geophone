@@ -64,10 +64,10 @@ int getFFT(double data [], int size , int isign )
 //带通滤波器，from startFreq to endFreq
 void filter(double array[], int startFreq, int endFreq, double threshold){
     int i;
-    for(i=0; i<(int)FFTSIZE*startFreq/1000; i++){
+    for(i=0; i<(int)FFTSIZE*startFreq/SAMPLE_RATE; i++){
         array[(FFTSIZE-1-i)*2+1] = array[(FFTSIZE-1-i)*2+2] = array[i*2+1] = array[i*2+2] = threshold;
     }
-    for(i=(int)FFTSIZE*endFreq/1000; i<FFTSIZE/2; i++){
+    for(i=(int)FFTSIZE*endFreq/SAMPLE_RATE; i<FFTSIZE/2; i++){
         array[(FFTSIZE-1-i)*2+1] = array[(FFTSIZE-1-i)*2+2] = array[i*2+1] = array[i*2+2] = threshold;
     }
     return;

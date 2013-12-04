@@ -1,4 +1,3 @@
-import copy 
-dataList = [0,1,2,3,4,5]
-
-print dataList[1:3]
+c = [-10,-5,0,5,3,100,15,20,25]
+print c.index(min(c))
+print c.index(max(c))

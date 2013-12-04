@@ -21,7 +21,9 @@ class SerialPort(object):
         """
         data = 0
         try:
+            print "before readline"
             data = int(self.ser.readline())
+            print "after readline"
         except ValueError:
             data = -1
         return data
