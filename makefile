@@ -4,7 +4,7 @@ SRC = ./native/src/geophone.c ./native/src/analyze.c
 TARGET = FFT.so
 INCLUDE_PATH = ./native/include
 PYTHON_PATH = ./python
-FLAG = -shared -fpic -lpython -I $(INCLUDE_PATH)
+FLAG = -shared -fpic -lpython2.7 -I $(INCLUDE_PATH)
 COMPILOR = gcc
 
 MSG_BEGIN = -------- begin --------
